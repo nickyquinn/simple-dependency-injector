@@ -17,6 +17,8 @@ namespace SimpleDependencyInjector
 			IInjectable injectable = InjectionFactory.Get<IInjectable>();
 
 			Console.WriteLine(injectable.GetFormatted("Hello, World!"));
+            Console.WriteLine("------- Press any key to exit -------");
+            Console.ReadKey();
         }
 
 		private static IConfigurationBuilder _settings;
@@ -39,8 +41,13 @@ namespace SimpleDependencyInjector
 				var config = _settings.Build();                
 				string concreteName = config.GetSection("App:Injector:" + typeof(T).Name).Value;
                 //Use CreateInstance to init a new instance of the supplied type
-				object concrete = Activator.CreateInstance(Type.GetType(concreteName));
-                return (T)concrete;
+                if(!string.IsNullOrWhiteSpace(concreteName))
+                {
+                    object concrete = Activator.CreateInstance(Type.GetType(concreteName));
+                    return (T)concrete;
+                }
+
+                throw new ApplicationException($"No dependency configuration could be found for the type {typeof(T).Name}");
             }
 		}
     }
